@@ -1,7 +1,8 @@
 {
   "openConnect": {
     "ip": "127.0.0.1",
-    "port": 921
+    "port": 921,
+    "deviceId": "" // optional override; defaults to GSPRO-R10 or GSPRO-R50 based on bluetooth.deviceType
   },
   "r10E6Server": {
     "enabled": true,
@@ -9,7 +10,8 @@
   },
   "bluetooth": {
     "enabled": true, //bluetooth enabled
-    "bluetoothDeviceName": "Approach R10",
+    "deviceType": "r10", // r10 or r50
+    "bluetoothDeviceName": "", // optional override; defaults to "Approach R10" or "Approach R50" based on deviceType
     "reconnectInterval": 10, // seconds
     "sendStatusChangesToGSP": false, // send device readiness updates to gsp (does nothing as of today)
     "autoWake": true, // wake device if falls asleep

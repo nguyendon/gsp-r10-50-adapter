@@ -15,6 +15,7 @@ namespace gspro_r10
 
     public ConnectionManager ConnectionManager { get; }
     public IConfigurationSection Configuration { get; }
+    public GarminLaunchMonitorModel DeviceModel { get; }
     public int ReconnectInterval { get; }
     public LaunchMonitorDevice? LaunchMonitor { get; private set; }
     public BluetoothDevice? Device { get; private set; }
@@ -23,6 +24,8 @@ namespace gspro_r10
     {
       ConnectionManager = connectionManager;
       Configuration = configuration;
+      DeviceModel = GarminLaunchMonitorSupport.ResolveModel(configuration);
+      BluetoothLogger.SetDeviceModel(DeviceModel);
       ReconnectInterval = int.Parse(configuration["reconnectInterval"] ?? "5");
       Task.Run(ConnectToDevice);
 
@@ -30,13 +33,15 @@ namespace gspro_r10
 
     private void ConnectToDevice()
     {
-      string deviceName = Configuration["bluetoothDeviceName"] ?? "Approach R10";
+      string deviceName = Configuration["bluetoothDeviceName"] ?? string.Empty;
+      if (string.IsNullOrWhiteSpace(deviceName))
+        deviceName = GarminLaunchMonitorSupport.GetDefaultBluetoothDeviceName(DeviceModel);
       Device = FindDevice(deviceName);
       if (Device == null)
       {
         BluetoothLogger.Error($"Could not find '{deviceName}' in list of paired devices.");
         BluetoothLogger.Error("Device must be paired through computer bluetooth settings before running");
-        BluetoothLogger.Error("If device is paired, make sure name matches exactly what is set in 'bluetoothDeviceName' in settings.json");
+        BluetoothLogger.Error("If the device is paired, make sure bluetooth.deviceType and bluetooth.bluetoothDeviceName match settings.json");
         return;
       }
 
@@ -55,7 +60,7 @@ namespace gspro_r10
 
       Device.Gatt.AutoConnect = true;
 
-      BluetoothLogger.Info($"Connected to Launch Monitor");
+      BluetoothLogger.Info($"Connected to {GarminLaunchMonitorSupport.GetDisplayName(DeviceModel)}");
       LaunchMonitor = SetupLaunchMonitor(Device);
       Device.GattServerDisconnected += OnDeviceDisconnected;
     }
@@ -237,10 +242,17 @@ namespace gspro_r10
 
   public static class BluetoothLogger
   {
+    private static string ComponentName = "R10-BT";
+
+    public static void SetDeviceModel(GarminLaunchMonitorModel deviceModel)
+    {
+      ComponentName = GarminLaunchMonitorSupport.GetBluetoothLogComponent(deviceModel);
+    }
+
     public static void Info(string message) => LogBluetoothMessage(message, LogMessageType.Informational);
     public static void Error(string message) => LogBluetoothMessage(message, LogMessageType.Error);
     public static void Outgoing(string message) => LogBluetoothMessage(message, LogMessageType.Outgoing);
     public static void Incoming(string message) => LogBluetoothMessage(message, LogMessageType.Incoming);
-    public static void LogBluetoothMessage(string message, LogMessageType type) => BaseLogger.LogMessage(message, "R10-BT", type, ConsoleColor.Magenta);
+    public static void LogBluetoothMessage(string message, LogMessageType type) => BaseLogger.LogMessage(message, ComponentName, type, ConsoleColor.Magenta);
   }
 }

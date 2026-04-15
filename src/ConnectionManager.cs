@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using gspro_r10.bluetooth;
 using gspro_r10.OpenConnect;
 using Microsoft.Extensions.Configuration;
 
@@ -29,7 +30,12 @@ namespace gspro_r10
 
     public ConnectionManager(IConfigurationRoot configuration)
     {
-      OpenConnectDeviceId = configuration.GetSection("openConnect")["deviceId"] ?? "GSPRO-R10";
+      IConfigurationSection bluetoothConfiguration = configuration.GetSection("bluetooth");
+      GarminLaunchMonitorModel bluetoothModel = GarminLaunchMonitorSupport.ResolveModel(bluetoothConfiguration);
+      string configuredDeviceId = configuration.GetSection("openConnect")["deviceId"] ?? string.Empty;
+      OpenConnectDeviceId = string.IsNullOrWhiteSpace(configuredDeviceId)
+        ? GarminLaunchMonitorSupport.GetOpenConnectDeviceId(bluetoothModel)
+        : configuredDeviceId;
       OpenConnectClient = new OpenConnectClient(this, configuration.GetSection("openConnect"), OpenConnectDeviceId);
       OpenConnectClient.ConnectAsync();
 
@@ -39,8 +45,8 @@ namespace gspro_r10
         R10Server.Start();
       }
 
-      if (bool.Parse(configuration.GetSection("bluetooth")["enabled"] ?? "false"))
-        BluetoothConnection = new BluetoothConnection(this, configuration.GetSection("bluetooth"));
+      if (bool.Parse(bluetoothConfiguration["enabled"] ?? "false"))
+        BluetoothConnection = new BluetoothConnection(this, bluetoothConfiguration);
 
       if (bool.Parse(configuration.GetSection("putting")["enabled"] ?? "false"))
       {
