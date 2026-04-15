@@ -4,7 +4,7 @@ namespace gspro_r10.OpenConnect
 {
   public class OpenConnectApiMessage
   {
-    public string DeviceID { get { return "GSPRO-R10"; } }
+    public string DeviceID { get; set; } = "GSPRO-R10";
     public string Units { get { return "Yards"; } }
     public int ShotNumber { get; set; }
     public string APIVersion { get { return "1"; } }
@@ -12,10 +12,11 @@ namespace gspro_r10.OpenConnect
     public ClubData? ClubData { get; set; }
     public ShotDataOptions? ShotDataOptions { get; set; }
 
-    public static OpenConnectApiMessage CreateHeartbeat(bool launchMonitorReady = false)
+    public static OpenConnectApiMessage CreateHeartbeat(string deviceId, bool launchMonitorReady = false)
     {
       return new OpenConnectApiMessage()
       {
+        DeviceID = deviceId,
         ShotNumber = 0,
         ShotDataOptions = new ShotDataOptions()
         {
@@ -28,10 +29,11 @@ namespace gspro_r10.OpenConnect
       };
     }
 
-    public static OpenConnectApiMessage CreateShotData(int shotNumber, BallData? ballData, ClubData? clubData = null)
+    public static OpenConnectApiMessage CreateShotData(string deviceId, int shotNumber, BallData? ballData, ClubData? clubData = null)
     {
       return new OpenConnectApiMessage()
       {
+        DeviceID = deviceId,
         ShotNumber = shotNumber,
         BallData = ballData,
         ClubData = clubData,
@@ -48,6 +50,7 @@ namespace gspro_r10.OpenConnect
     {
       return new OpenConnectApiMessage()
       {
+        DeviceID = "GSPRO-R10",
         ShotNumber = 0,
         BallData = new BallData()
         {

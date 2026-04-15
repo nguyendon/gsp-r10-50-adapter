@@ -23,12 +23,14 @@ namespace gspro_r10
       DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
+    private string OpenConnectDeviceId;
     private int shotNumber = 0;
     private bool disposedValue;
 
     public ConnectionManager(IConfigurationRoot configuration)
     {
-      OpenConnectClient = new OpenConnectClient(this, configuration.GetSection("openConnect"));
+      OpenConnectDeviceId = configuration.GetSection("openConnect")["deviceId"] ?? "GSPRO-R10";
+      OpenConnectClient = new OpenConnectClient(this, configuration.GetSection("openConnect"), OpenConnectDeviceId);
       OpenConnectClient.ConnectAsync();
 
       if (bool.Parse(configuration.GetSection("r10E6Server")["enabled"] ?? "false"))
@@ -50,6 +52,7 @@ namespace gspro_r10
     internal void SendShot(OpenConnect.BallData? ballData, OpenConnect.ClubData? clubData)
     {
       string openConnectMessage = JsonSerializer.Serialize(OpenConnectApiMessage.CreateShotData(
+        OpenConnectDeviceId,
         shotNumber++,
         ballData,
         clubData

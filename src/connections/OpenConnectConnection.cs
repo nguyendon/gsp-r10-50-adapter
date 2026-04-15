@@ -12,12 +12,14 @@ namespace gspro_r10
     public Timer? PingTimer { get; private set; }
     public bool InitiallyConnected { get; private set; }
     public ConnectionManager ConnectionManager { get; set; }
+    public string DeviceId { get; }
     private bool _stop;
 
-    public OpenConnectClient(ConnectionManager connectionManager, IConfigurationSection configuration)
+    public OpenConnectClient(ConnectionManager connectionManager, IConfigurationSection configuration, string deviceId)
       : base(configuration["ip"] ?? "127.0.0.1", int.Parse(configuration["port"] ?? "921"))
     {
       ConnectionManager = connectionManager;
+      DeviceId = deviceId;
     }
 
     public void DisconnectAndStop()
@@ -37,12 +39,12 @@ namespace gspro_r10
 
     private void SendPing(object? state)
     {
-      SendAsync(JsonSerializer.Serialize(OpenConnect.OpenConnectApiMessage.CreateHeartbeat()));
+      SendAsync(JsonSerializer.Serialize(OpenConnect.OpenConnectApiMessage.CreateHeartbeat(DeviceId)));
     }
 
     public void SetDeviceReady(bool deviceReady)
     {
-      SendAsync(JsonSerializer.Serialize(OpenConnect.OpenConnectApiMessage.CreateHeartbeat(deviceReady)));
+      SendAsync(JsonSerializer.Serialize(OpenConnect.OpenConnectApiMessage.CreateHeartbeat(DeviceId, deviceReady)));
     }
 
     public override bool ConnectAsync()

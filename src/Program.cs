@@ -21,8 +21,8 @@ namespace gspro_r10
 
       IConfigurationRoot configuration = builder.Build();
       
-      Console.Title = "GSP-R10 Connect";
-      BaseLogger.LogMessage("GSP - R10 Bridge starting. Press enter key to close", "Main");
+      Console.Title = "GSP Launch Monitor Connect";
+      BaseLogger.LogMessage("GSP launch monitor bridge starting. Press enter key to close", "Main");
       ConnectionManager manager = new ConnectionManager(configuration);
       Console.ReadLine();
       BaseLogger.LogMessage("Shutting down...", "Main");
