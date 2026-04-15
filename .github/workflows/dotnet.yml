@@ -1,28 +1,74 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
-name: .NET
+name: build-windows
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 6.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 7.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish framework-dependent build
+        run: >
+          dotnet publish
+          -c Release
+          -r win-x64
+          --self-contained false
+          -p:PublishSingleFile=true
+          -p:DebugType=None
+          -p:DebugSymbols=false
+          -o publish/framework
+
+      - name: Publish self-contained build
+        run: >
+          dotnet publish
+          -c Release
+          -r win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:DebugType=None
+          -p:DebugSymbols=false
+          -o publish/selfcontained
+
+      - name: Read version
+        shell: pwsh
+        run: |
+          [xml]$project = Get-Content gspro-r10.csproj
+          $version = $project.Project.PropertyGroup.VersionPrefix
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Create release zip artifacts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          Compress-Archive -Path publish/framework/* -DestinationPath artifacts/gsp-r10-adapter-v${env:VERSION}-win-x64.zip
+          Compress-Archive -Path publish/selfcontained/* -DestinationPath artifacts/gsp-r10-adapter-v${env:VERSION}-win-x64-selfcontained.zip
+
+      - name: Upload publish directories
+        uses: actions/upload-artifact@v4
+        with:
+          name: publish-directories
+          path: publish/
+
+      - name: Upload release zip artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release-zips
+          path: artifacts/*.zip
