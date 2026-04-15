@@ -26,6 +26,8 @@ namespace gspro_r10
       Configuration = configuration;
       DeviceModel = GarminLaunchMonitorSupport.ResolveModel(configuration);
       BluetoothLogger.SetDeviceModel(DeviceModel);
+      if (DeviceModel == GarminLaunchMonitorModel.R50)
+        BluetoothLogger.Error("R50 third-party simulator connectivity is expected to use the Wi-Fi connector path. BLE support here is experimental.");
       ReconnectInterval = int.Parse(configuration["reconnectInterval"] ?? "5");
       Task.Run(ConnectToDevice);
 

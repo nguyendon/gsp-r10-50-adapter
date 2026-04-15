@@ -8,10 +8,17 @@
     "enabled": true,
     "port": 2483
   },
+  "r50NetworkProxy": {
+    "enabled": false,
+    "listenPort": 2483,
+    "upstreamHost": "127.0.0.1",
+    "upstreamPort": 2483,
+    "logPayloads": true
+  },
   "bluetooth": {
     "enabled": true, //bluetooth enabled
-    "deviceType": "r10", // r10 or r50
-    "bluetoothDeviceName": "", // optional override; defaults to "Approach R10" or "Approach R50" based on deviceType
+    "deviceType": "r10", // r10 is the validated BLE path; r50 remains experimental
+    "bluetoothDeviceName": "", // optional override; defaults to the Garmin device name for the selected BLE model
     "reconnectInterval": 10, // seconds
     "sendStatusChangesToGSP": false, // send device readiness updates to gsp (does nothing as of today)
     "autoWake": true, // wake device if falls asleep

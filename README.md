@@ -2,7 +2,8 @@
 
 Utility to bridge Garmin launch monitors to GSPro. Supports the following
   - An "E6 Connect" compatible server for use with the R10 launch monitor's E6 integration
-  - Direct bluetooth connection to Garmin Approach R10 and R50 through the Garmin BLE path
+  - Direct bluetooth connection to Garmin Approach R10 through the Garmin BLE path
+  - Transparent TCP proxying for investigating the Garmin Approach R50 Wi-Fi connector path
   - Webcam putting integration with https://github.com/alleexx/cam-putting-py
 
 The goal of this project was to provide an ultra lightweight alterntive to the current offerings, with a focus on API transparency.
@@ -14,16 +15,25 @@ The goal of this project was to provide an ultra lightweight alterntive to the c
 
 In order to use the direct bluetooth connection you must
 - Enable bluetooth in `settings.json` file
-- Set `bluetooth.deviceType` to `r10` or `r50`
+- Set `bluetooth.deviceType` to `r10`
 - Edit `settings.json` to reflect your desired altitude, tee distance, temperature, etc.
 - Set device in pairing mode (blue blinking light) by holding power button for few seconds
-- **Pair the Garmin launch monitor from the windows bluetooth settings**
+- **Pair the Garmin Approach R10 from the windows bluetooth settings**
   - On windows 11 you may need to set "Bluetooth Device Discovery" to `advanced`
   - This step only needs to be done once
   - You may need to disable bluetooth on previously paired devices to prevent them from stealing the connection
-- Leave `bluetooth.bluetoothDeviceName` blank to use the default device name for the selected model, or set it explicitly if you renamed the device in Windows
-- R50 uses the same Garmin BLE adapter path as R10, so confirm the first session by checking the startup logs and a test shot
+- Leave `bluetooth.bluetoothDeviceName` blank to use the default R10 device name, or set it explicitly if you renamed the device in Windows
 - The current Garmin BLE schema in this repo exposes launch, spin, ball speed, club speed, attack angle, face angle, and path. Unsupported GSPro fields are now omitted instead of being sent as `0`.
+
+## Investigating the R50 Wi-Fi Path
+
+Garmin's third-party simulator support for the Approach R50 is exposed over Wi-Fi, not the Bluetooth launch-monitor path. To help reverse engineer that connector, enable `r50NetworkProxy` in `settings.json` and point it at the R50's current IP and TCP port.
+
+- `listenPort` is the local proxy port a client connects to
+- `upstreamHost` and `upstreamPort` should target the R50's network endpoint
+- `logPayloads` prints relayed traffic as hex with a UTF-8 preview when possible
+
+This proxy is transparent. It does not decode or modify the R50 protocol yet.
 
 ## Using the putting integration
 

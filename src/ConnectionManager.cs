@@ -11,6 +11,7 @@ namespace gspro_r10
     private R10ConnectionServer? R10Server;
     private OpenConnectClient OpenConnectClient;
     private BluetoothConnection? BluetoothConnection { get; }
+    private R50NetworkProxy? GarminR50NetworkProxy { get; }
     internal HttpPuttingServer? PuttingConnection { get; }
     public event ClubChangedEventHandler? ClubChanged;
     public delegate void ClubChangedEventHandler(object sender, ClubChangedEventArgs e);
@@ -47,6 +48,12 @@ namespace gspro_r10
 
       if (bool.Parse(bluetoothConfiguration["enabled"] ?? "false"))
         BluetoothConnection = new BluetoothConnection(this, bluetoothConfiguration);
+
+      if (bool.Parse(configuration.GetSection("r50NetworkProxy")["enabled"] ?? "false"))
+      {
+        GarminR50NetworkProxy = new R50NetworkProxy(configuration.GetSection("r50NetworkProxy"));
+        GarminR50NetworkProxy.Start();
+      }
 
       if (bool.Parse(configuration.GetSection("putting")["enabled"] ?? "false"))
       {
@@ -92,6 +99,7 @@ namespace gspro_r10
           R10Server?.Dispose();
           PuttingConnection?.Dispose();
           BluetoothConnection?.Dispose();
+          GarminR50NetworkProxy?.Dispose();
           OpenConnectClient?.DisconnectAndStop();
           OpenConnectClient?.Dispose();
         }
