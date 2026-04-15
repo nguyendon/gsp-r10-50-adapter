@@ -100,8 +100,8 @@ namespace gspro_r10
       {
         LogMetrics(e.Metrics);
         ConnectionManager.SendShot(
-          BallDataFromLaunchMonitorMetrics(e.Metrics?.BallMetrics),
-          ClubDataFromLaunchMonitorMetrics(e.Metrics?.ClubMetrics)
+          LaunchMonitorMetricsMapper.BallDataFromMetrics(e.Metrics?.BallMetrics),
+          LaunchMonitorMetricsMapper.ClubDataFromMetrics(e.Metrics?.ClubMetrics)
         );
       };
 
@@ -137,34 +137,6 @@ namespace gspro_r10
         if (pairedDev.Name == deviceName)
           return pairedDev;
       return null;
-    }
-
-    public static BallData? BallDataFromLaunchMonitorMetrics(BallMetrics? ballMetrics)
-    {
-      if (ballMetrics == null) return null;
-      return new BallData()
-      {
-        HLA = ballMetrics.LaunchDirection,
-        VLA = ballMetrics.LaunchAngle,
-        Speed = ballMetrics.BallSpeed * METERS_PER_S_TO_MILES_PER_HOUR,
-        SpinAxis = ballMetrics.SpinAxis * -1,
-        TotalSpin = ballMetrics.TotalSpin,
-        SideSpin = ballMetrics.TotalSpin * Math.Sin(-1 * ballMetrics.SpinAxis * Math.PI / 180),
-        BackSpin = ballMetrics.TotalSpin * Math.Cos(-1 * ballMetrics.SpinAxis * Math.PI / 180)
-      };
-    }
-
-    public static ClubData? ClubDataFromLaunchMonitorMetrics(ClubMetrics? clubMetrics)
-    {
-      if (clubMetrics == null) return null;
-      return new ClubData()
-      {
-        Speed = clubMetrics.ClubHeadSpeed * METERS_PER_S_TO_MILES_PER_HOUR,
-        SpeedAtImpact = clubMetrics.ClubHeadSpeed * METERS_PER_S_TO_MILES_PER_HOUR,
-        AngleOfAttack = clubMetrics.AttackAngle,
-        FaceToTarget = clubMetrics.ClubAngleFace,
-        Path = clubMetrics.ClubAnglePath
-      };
     }
 
     protected virtual void Dispose(bool disposing)

@@ -23,6 +23,7 @@ In order to use the direct bluetooth connection you must
   - You may need to disable bluetooth on previously paired devices to prevent them from stealing the connection
 - Leave `bluetooth.bluetoothDeviceName` blank to use the default device name for the selected model, or set it explicitly if you renamed the device in Windows
 - R50 uses the same Garmin BLE adapter path as R10, so confirm the first session by checking the startup logs and a test shot
+- The current Garmin BLE schema in this repo exposes launch, spin, ball speed, club speed, attack angle, face angle, and path. Unsupported GSPro fields are now omitted instead of being sent as `0`.
 
 ## Using the putting integration
 
