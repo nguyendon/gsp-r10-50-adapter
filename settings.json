@@ -1,23 +1,27 @@
 {
+  "launchMonitor": {
+    "model": "r10", // r10 or r50
+    "transport": "bluetooth" // bluetooth, r10_e6_server, or r50_network_proxy
+  },
   "openConnect": {
     "ip": "127.0.0.1",
     "port": 921,
-    "deviceId": "" // optional override; defaults to GSPRO-R10 or GSPRO-R50 based on bluetooth.deviceType
+    "deviceId": "" // optional override; defaults to GSPRO-R10 or GSPRO-R50 based on launchMonitor.model
   },
   "r10E6Server": {
-    "enabled": true,
+    "enabled": false, // legacy fallback; ignored when launchMonitor.transport is set
     "port": 2483
   },
   "r50NetworkProxy": {
-    "enabled": false,
+    "enabled": false, // legacy fallback; ignored when launchMonitor.transport is set
     "listenPort": 2483,
     "upstreamHost": "127.0.0.1",
     "upstreamPort": 2483,
     "logPayloads": true
   },
   "bluetooth": {
-    "enabled": true, //bluetooth enabled
-    "deviceType": "r10", // r10 is the validated BLE path; r50 remains experimental
+    "enabled": true, // legacy fallback; ignored when launchMonitor.transport is set
+    "deviceType": "r10", // legacy fallback; launchMonitor.model is preferred
     "bluetoothDeviceName": "", // optional override; defaults to the Garmin device name for the selected BLE model
     "reconnectInterval": 10, // seconds
     "sendStatusChangesToGSP": false, // send device readiness updates to gsp (does nothing as of today)

@@ -11,11 +11,21 @@ The goal of this project was to provide an ultra lightweight alterntive to the c
 ![Sample](screenshot.png)
 
 
+## Choosing A Launch Monitor
+
+Use the top-level `launchMonitor` section in `settings.json` to choose the active device path.
+
+- `model: "r10"` with `transport: "bluetooth"` uses the Garmin BLE path
+- `model: "r10"` with `transport: "r10_e6_server"` starts the R10 E6-compatible TCP server
+- `model: "r50"` with `transport: "r50_network_proxy"` starts the transparent R50 Wi-Fi proxy/logger
+
+The older `enabled` flags under `bluetooth`, `r10E6Server`, and `r50NetworkProxy` remain as legacy fallbacks, but `launchMonitor` is now the preferred configuration entrypoint.
+
 ## Using Direct Bluetooth Connector
 
 In order to use the direct bluetooth connection you must
-- Enable bluetooth in `settings.json` file
-- Set `bluetooth.deviceType` to `r10`
+- Set `launchMonitor.model` to `r10`
+- Set `launchMonitor.transport` to `bluetooth`
 - Edit `settings.json` to reflect your desired altitude, tee distance, temperature, etc.
 - Set device in pairing mode (blue blinking light) by holding power button for few seconds
 - **Pair the Garmin Approach R10 from the windows bluetooth settings**
@@ -27,7 +37,7 @@ In order to use the direct bluetooth connection you must
 
 ## Investigating the R50 Wi-Fi Path
 
-Garmin's third-party simulator support for the Approach R50 is exposed over Wi-Fi, not the Bluetooth launch-monitor path. To help reverse engineer that connector, enable `r50NetworkProxy` in `settings.json` and point it at the R50's current IP and TCP port.
+Garmin's third-party simulator support for the Approach R50 is exposed over Wi-Fi, not the Bluetooth launch-monitor path. To help reverse engineer that connector, set `launchMonitor.model` to `r50`, set `launchMonitor.transport` to `r50_network_proxy`, and point `r50NetworkProxy` at the R50's current IP and TCP port.
 
 - `listenPort` is the local proxy port a client connects to
 - `upstreamHost` and `upstreamPort` should target the R50's network endpoint

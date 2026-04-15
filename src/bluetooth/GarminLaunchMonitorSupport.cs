@@ -12,7 +12,12 @@ namespace gspro_r10.bluetooth
   {
     public static GarminLaunchMonitorModel ResolveModel(IConfigurationSection configuration)
     {
-      return (configuration["deviceType"] ?? string.Empty).Trim().ToLowerInvariant() switch
+      return ResolveModel(configuration["deviceType"] ?? string.Empty);
+    }
+
+    public static GarminLaunchMonitorModel ResolveModel(string configuredModel)
+    {
+      return configuredModel.Trim().ToLowerInvariant() switch
       {
         "r50" => GarminLaunchMonitorModel.R50,
         _ => GarminLaunchMonitorModel.R10

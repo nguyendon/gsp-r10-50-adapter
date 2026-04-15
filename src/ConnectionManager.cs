@@ -31,25 +31,28 @@ namespace gspro_r10
 
     public ConnectionManager(IConfigurationRoot configuration)
     {
+      LaunchMonitorConfiguration launchMonitorConfiguration = LaunchMonitorConfiguration.Resolve(configuration);
       IConfigurationSection bluetoothConfiguration = configuration.GetSection("bluetooth");
-      GarminLaunchMonitorModel bluetoothModel = GarminLaunchMonitorSupport.ResolveModel(bluetoothConfiguration);
       string configuredDeviceId = configuration.GetSection("openConnect")["deviceId"] ?? string.Empty;
       OpenConnectDeviceId = string.IsNullOrWhiteSpace(configuredDeviceId)
-        ? GarminLaunchMonitorSupport.GetOpenConnectDeviceId(bluetoothModel)
+        ? GarminLaunchMonitorSupport.GetOpenConnectDeviceId(launchMonitorConfiguration.Model)
         : configuredDeviceId;
       OpenConnectClient = new OpenConnectClient(this, configuration.GetSection("openConnect"), OpenConnectDeviceId);
       OpenConnectClient.ConnectAsync();
 
-      if (bool.Parse(configuration.GetSection("r10E6Server")["enabled"] ?? "false"))
+      if (launchMonitorConfiguration.Transport == LaunchMonitorTransport.R10E6Server)
       {
         R10Server = new R10ConnectionServer(this, configuration.GetSection("r10E6Server"));
         R10Server.Start();
       }
 
-      if (bool.Parse(bluetoothConfiguration["enabled"] ?? "false"))
+      if (launchMonitorConfiguration.Transport == LaunchMonitorTransport.Bluetooth)
+      {
+        bluetoothConfiguration["deviceType"] = launchMonitorConfiguration.Model == GarminLaunchMonitorModel.R50 ? "r50" : "r10";
         BluetoothConnection = new BluetoothConnection(this, bluetoothConfiguration);
+      }
 
-      if (bool.Parse(configuration.GetSection("r50NetworkProxy")["enabled"] ?? "false"))
+      if (launchMonitorConfiguration.Transport == LaunchMonitorTransport.R50NetworkProxy)
       {
         GarminR50NetworkProxy = new R50NetworkProxy(configuration.GetSection("r50NetworkProxy"));
         GarminR50NetworkProxy.Start();
